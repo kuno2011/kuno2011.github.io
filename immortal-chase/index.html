@@ -3,8 +3,10 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Immortal Chase</title>
+  <link rel="manifest" href="/immortal-chase/manifest.webmanifest">
+  <meta name="theme-color" content="#2b2140">
   <meta property="og:title" content="Immortal Chase">
-  <meta property="og:description" content="A chibi xianxia race: catch the Star-Jade Hare, flee the Jade Spider.">
+  <meta property="og:description" content="A chibi xianxia race: catch the Star-Jade Hare, flee the Giant Jade Spider.">
   <meta property="og:image" content="https://kuno2011.github.io/immortal-chase/img/yun.png">
   <link rel="stylesheet" href="/style.css">
 </head>
@@ -12,29 +14,44 @@
   <main class="card">
     <img class="icon hero" src="img/yun.png" alt="">
     <h1>Immortal Chase</h1>
-    <p class="sub">A chibi xianxia race for Android: catch the Star-Jade Hare, flee the Giant Jade Spider.</p>
+    <p class="sub">A chibi xianxia race: catch the Star-Jade Hare, flee the Giant Jade Spider.</p>
     <div class="cast">
       <img src="img/yun.png" alt=""><img src="img/ling.png" alt=""><img src="img/fei.png" alt=""><img src="img/long.png" alt=""><img src="img/ye.png" alt=""><img src="img/tu.png" alt=""><img src="img/shi.png" alt="">
     </div>
-    <a class="btn" href="play/">▶ Play now in your browser</a>
-    <p class="meta">Install it from there to play it like an app: in Chrome, the menu ⋮ then <b>Install app</b> (or <b>Add to Home screen</b>).
-      It updates itself every time you open it. Turn your phone sideways to play.</p>
-    <a class="btn alt" href="immortal-chase.apk" download>⬇ Or download the Android app (APK)</a>
-    <p class="meta" id="ver"></p>
-    <h2>Installing the Android app</h2>
-    <ol>
-      <li>Tap the download button above, then open the file once it has downloaded.</li>
-      <li>If Android asks, allow your browser to <b>install unknown apps</b> (it is not from the Play Store).</li>
-      <li>Tap <b>Install</b>. To update later, download it again and install over the old one: your settings stay.</li>
-    </ol>
+    <button class="btn" id="install" hidden>📲 Install the game</button>
+    <p class="meta" id="state"></p>
+    <div id="manual" hidden>
+      <p><b>To install it:</b> open the browser's menu <b>⋮</b> and tap <b>Install app</b> (or <b>Add to Home screen</b>).
+        On an iPhone: the <b>Share</b> button, then <b>Add to Home Screen</b>.</p>
+    </div>
+    <h2>What “install” means</h2>
+    <p>The game is added to your home screen with its own icon, like any app, without the Play Store. It opens full
+      screen and sideways, and starts even without internet (against the bots).</p>
+    <p><b>It updates itself:</b> every time you open it online, it is the latest version. Nothing to download again.</p>
+    <p>Everything runs on your phone. Races with friends go phone to phone; the site only delivers the game.
+      To remove it, long-press its icon and choose <b>Uninstall</b>.</p>
     <h2>Racing with friends</h2>
-    <p>One of you taps <b>Host a race</b> and shares the room (the <b>Share</b> button, or the QR code). The others tap the link,
-      scan the QR code, or tap <b>Join a race</b> and type the code.</p>
+    <p>One of you taps <b>Host a race</b> and shares the room (the <b>Share</b> button, or the QR code). The others tap the
+      link, scan the QR code, or tap <b>Join a race</b> and type the code.</p>
   </main>
   <script>
-    fetch('version.json', { cache: 'no-store' }).then((r) => r.json()).then((v) => {
-      document.getElementById('ver').textContent = `Latest version: ${v.date}`;
-    }).catch(() => {});
+    // the install (a Progressive Web App): the browser offers it once the page qualifies; our button asks for it
+    const btn = document.getElementById('install'), state = document.getElementById('state'), manual = document.getElementById('manual');
+    let asked = null;
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('/immortal-chase/sw.js', { scope: '/immortal-chase/' }).catch(() => {});
+    const installed = () => { btn.hidden = true; manual.hidden = true; state.innerHTML = '✅ Installed! Open <b>Immortal Chase</b> from your home screen.'; };
+    if (matchMedia('(display-mode: fullscreen), (display-mode: standalone)').matches) location.replace('play/');
+    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); asked = e; btn.hidden = false; manual.hidden = true; state.textContent = ''; });
+    window.addEventListener('appinstalled', installed);
+    btn.onclick = async () => {
+      if (!asked) return;
+      asked.prompt();
+      const r = await asked.userChoice;
+      asked = null;
+      if (r.outcome === 'accepted') installed(); else { btn.hidden = true; manual.hidden = false; }
+    };
+    // no offer from the browser after a moment (already installed, or a browser without it): the way by hand
+    setTimeout(() => { if (!asked && btn.hidden && !state.textContent) { manual.hidden = false; state.textContent = 'Already installed? Open it from your home screen.'; } }, 2500);
   </script>
 </body>
 </html>

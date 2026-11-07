@@ -2,10 +2,11 @@
 
 Public pages for Kuno's games, served at https://kuno2011.github.io/.
 
-- `immortal-chase/`: the game's page and its latest Android build (`immortal-chase.apk`, `version.json`).
+- `immortal-chase/`: the game's page, which installs it as an app (a PWA: `manifest.webmanifest`, `sw.js`), and
+  `play/`, the game itself (the web build, which updates itself every time it is opened).
 - `immortal-chase/join/#CODE`: a room invitation. It opens the game straight in the room (Android App Links:
-  `.well-known/assetlinks.json` holds the game's signing key; otherwise the `intent://` link on the page), or
-  sends whoever does not have the game to its page.
+  `.well-known/assetlinks.json` holds the Android build's signing key), else its button opens the game in the room
+  (`play/?join=CODE`).
 - `.nojekyll` keeps GitHub Pages from dropping `.well-known/`.
 
-The game's code is private (kuno2011/immortal-chase); only these pages and the built APK are here.
+The game's code is private (kuno2011/immortal-chase); only these pages and the built game are here.
