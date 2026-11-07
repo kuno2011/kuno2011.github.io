@@ -15,7 +15,8 @@
     <h1>Join the race!</h1>
     <p class="sub" id="lead">You are invited to an Immortal Chase room.</p>
     <div class="code" id="code"></div>
-    <a class="btn" id="go" href="../play/">🏮 Join this room</a>
+    <p id="how"><b>Installed the game?</b> Open <b>Immortal Chase</b> from your home screen: it takes you straight into this room.</p>
+    <a class="btn" id="go" href="../play/">▶ Join here in the browser</a>
     <a class="btn alt" href="../">📲 Install the game</a>
     <p class="meta">Or open the game, tap <b>Join a race</b> and type the code above.</p>
   </main>
@@ -26,6 +27,10 @@
     document.getElementById('code').textContent = ok ? code : '?????';
     if (!ok) document.getElementById('lead').textContent = 'This invitation has no room code. Ask your friend to share it again.';
     if (ok) document.getElementById('go').href = `../play/?join=${code}`;
+    // Android does not let an installed web app open links itself: the room's code is kept here (the game shares
+    // this site's storage) and the game joins it the next time it opens (within 15 minutes)
+    if (ok) try { localStorage.setItem('immortal-chase:invite', JSON.stringify({ code, at: Date.now() })); } catch (e) {}
+    else document.getElementById('how').hidden = true;
     // opened in the installed app (Android hands it the link): straight into the room, no tap needed
     if (ok && matchMedia('(display-mode: fullscreen), (display-mode: standalone), (display-mode: minimal-ui)').matches) location.replace(`../play/?join=${code}`);
   </script>
