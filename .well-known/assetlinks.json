@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.kuno.immortalchase",
+    "sha256_cert_fingerprints": ["E5:A6:2A:60:51:D4:98:CF:05:22:68:64:0D:D0:C3:28:3F:40:76:CE:6C:78:36:F9:B5:3D:5C:B7:CF:D9:FB:F6"]
+  }
+}]
