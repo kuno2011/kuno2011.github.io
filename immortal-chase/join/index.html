@@ -15,6 +15,7 @@
     <p class="sub" id="lead">You are invited to an Immortal Chase room.</p>
     <div class="code" id="code"></div>
     <a class="btn" id="open" href="#">🏮 Open the game in this room</a>
+    <a class="btn alt" id="web" href="../play/">▶ Play in the browser instead</a>
     <a class="btn alt" href="../">⬇ I don't have the game yet</a>
     <p class="meta">If the game does not open: open it yourself, tap <b>Join a race</b> and type the code above.</p>
   </main>
@@ -24,12 +25,12 @@
     const ok = /^[A-HJKMNP-Z2-9]{5}$/.test(code);
     document.getElementById('code').textContent = ok ? code : '?????';
     if (!ok) document.getElementById('lead').textContent = 'This invitation has no room code. Ask your friend to share it again.';
-    const fallback = encodeURIComponent(new URL('../', location.href).href);
     const link = /android/i.test(navigator.userAgent)
-      ? `intent://join/${code}#Intent;scheme=immortalchase;package=com.kuno.immortalchase;S.browser_fallback_url=${fallback};end`
+      ? `intent://join/${code}#Intent;scheme=immortalchase;package=com.kuno.immortalchase;S.browser_fallback_url=${encodeURIComponent(new URL(`../play/?join=${code}`, location.href).href)};end`
       : `immortalchase://join/${code}`;
     const btn = document.getElementById('open');
     btn.href = ok ? link : '../';
+    document.getElementById('web').href = ok ? `../play/?join=${code}` : '../play/';
     // try once on arrival; the button is there if the browser wants a tap first
     if (ok) setTimeout(() => { location.href = link; }, 300);
   </script>
