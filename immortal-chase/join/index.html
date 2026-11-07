@@ -15,6 +15,8 @@
     <h1>Join the race!</h1>
     <p class="sub" id="lead">You are invited to an Immortal Chase room.</p>
     <div class="code" id="code"></div>
+    <p id="inapp" hidden><b>You are in Messenger's (or another app's) own browser, where races cannot connect.</b>
+      <a class="btn" id="chrome" href="#">Open in Chrome</a>Or use the menu <b>⋮</b> and <b>Open in Chrome</b> (or your browser).</p>
     <p id="how"><b>Installed the game?</b> Open <b>Immortal Chase</b> from your home screen: it takes you straight into this room.</p>
     <a class="btn" id="go" href="../play/">▶ Join here in the browser</a>
     <a class="btn alt" href="../">📲 Install the game</a>
@@ -27,6 +29,21 @@
     document.getElementById('code').textContent = ok ? code : '?????';
     if (!ok) document.getElementById('lead').textContent = 'This invitation has no room code. Ask your friend to share it again.';
     if (ok) document.getElementById('go').href = `../play/?join=${code}`;
+    // opened in an app's own browser (Messenger, Facebook, Instagram...: owner, the phones could not connect from there,
+    // and its storage is not Chrome's): straight on to Chrome, the same page
+    const inApp = /FBAN|FBAV|FB_IAB|Messenger|Instagram|Line\/|MicroMessenger|TikTok|Snapchat|; wv\)/i.test(navigator.userAgent);
+    if (inApp) {
+      document.getElementById('inapp').hidden = false;
+      document.getElementById('how').hidden = true;
+      document.getElementById('go').hidden = true;
+      // (the code goes as ?code=: a # would be cut off on the way)
+      const page = `${location.host}${location.pathname}${ok ? `?code=${code}` : ''}`;
+      const chrome = /android/i.test(navigator.userAgent)
+        ? `intent://${page}#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=${encodeURIComponent('https://' + page)};end`
+        : 'https://' + page;
+      document.getElementById('chrome').href = chrome;
+      if (/android/i.test(navigator.userAgent)) setTimeout(() => { location.href = chrome; }, 300);
+    }
     // Android does not let an installed web app open links itself: the room's code is kept here (the game shares
     // this site's storage) and the game joins it the next time it opens (within 15 minutes)
     if (ok) try { localStorage.setItem('immortal-chase:invite', JSON.stringify({ code, at: Date.now() })); } catch (e) {}
