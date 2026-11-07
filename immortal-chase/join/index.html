@@ -26,6 +26,8 @@
     document.getElementById('code').textContent = ok ? code : '?????';
     if (!ok) document.getElementById('lead').textContent = 'This invitation has no room code. Ask your friend to share it again.';
     if (ok) document.getElementById('go').href = `../play/?join=${code}`;
+    // opened in the installed app (Android hands it the link): straight into the room, no tap needed
+    if (ok && matchMedia('(display-mode: fullscreen), (display-mode: standalone), (display-mode: minimal-ui)').matches) location.replace(`../play/?join=${code}`);
   </script>
 </body>
 </html>
