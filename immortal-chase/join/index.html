@@ -8,6 +8,7 @@
   <meta property="og:description" content="Tap to join the room.">
   <meta property="og:image" content="https://kuno2011.github.io/immortal-chase/img/yun.png">
   <link rel="stylesheet" href="/style.css">
+  <style>[hidden] { display: none !important; }</style>
 </head>
 <body>
   <main class="card">
@@ -17,9 +18,14 @@
     <div class="code" id="code"></div>
     <p id="inapp" hidden><b>You are in Messenger's (or another app's) own browser, where races cannot connect.</b>
       <a class="btn" id="chrome" href="#">Open in Chrome</a>Or use the menu <b>⋮</b> and <b>Open in Chrome</b> (or your browser).</p>
+    <a class="btn" id="app" href="#" hidden>▶ Open in the app</a>
     <p id="how"><b>Installed the game?</b> Open <b>Immortal Chase</b> from your home screen: it takes you straight into this room.</p>
+    <p id="stuck" hidden><b>Didn't open?</b> Tap the menu <b>⋮</b> and <b>Open in Immortal Chase</b>, or open it from your home screen: it joins this room by itself.</p>
     <a class="btn" id="go" href="../play/">▶ Join here in the browser</a>
-    <a class="btn alt" href="../">📲 Install the game</a>
+    <a class="btn alt" id="install" href="../">📲 Install the game</a>
+    <details id="always" hidden><summary>Open invitations in the app every time</summary>
+      <p>Android sends links to the browser unless you allow the app once: <b>Settings › Apps › Immortal Chase › Open by default</b>,
+      turn on <b>Open supported links</b> and tick <b>kuno2011.github.io</b> under <b>Add link</b>. From then on an invitation opens the game straight into the room.</p></details>
     <p class="meta">Or open the game, tap <b>Join a race</b> and type the code above.</p>
   </main>
   <script>
@@ -48,6 +54,24 @@
     // this site's storage) and the game joins it the next time it opens (within 15 minutes)
     if (ok) try { localStorage.setItem('immortal-chase:invite', JSON.stringify({ code, at: Date.now() })); } catch (e) {}
     else document.getElementById('how').hidden = true;
+    // the game installed on this phone (the manifest's related_applications names itself): lead with the app.
+    // A page cannot start an installed web app by name, so the button asks Android to open the room's address
+    // (an intent with no package); if the app does not take it, the page is still here and says what to do
+    const android = /android/i.test(navigator.userAgent);
+    if (ok && !inApp && android && navigator.getInstalledRelatedApps) navigator.getInstalledRelatedApps().then((apps) => {
+      if (!apps.length) return;
+      const play = `${location.host}${location.pathname.replace(/join\/?$/, 'play/')}?join=${code}`;
+      const app = document.getElementById('app');
+      app.href = `intent://${play}#Intent;scheme=https;action=android.intent.action.VIEW;end`;
+      app.hidden = false;
+      document.getElementById('how').hidden = true;
+      document.getElementById('install').hidden = true;
+      document.getElementById('always').hidden = false;
+      document.getElementById('go').classList.add('alt');
+      app.addEventListener('click', () => setTimeout(() => {
+        if (document.visibilityState === 'visible') document.getElementById('stuck').hidden = false;
+      }, 1500));
+    }).catch(() => {});
     // opened in the installed app (Android hands it the link): straight into the room, no tap needed
     if (ok && matchMedia('(display-mode: fullscreen), (display-mode: standalone), (display-mode: minimal-ui)').matches) location.replace(`../play/?join=${code}`);
   </script>
