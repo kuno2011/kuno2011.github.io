@@ -35,23 +35,32 @@
       link, scan the QR code, or tap <b>Join a race</b> and type the code.</p>
   </main>
   <script>
-    // the install (a Progressive Web App): the browser offers it once the page qualifies; our button asks for it
+    // the install (a Progressive Web App): the browser offers it once the page qualifies; our button asks for it.
+    // One state at a time: the button (the browser offers it), the way by hand (it does not), or installed.
     const btn = document.getElementById('install'), state = document.getElementById('state'), manual = document.getElementById('manual');
-    let asked = null;
+    let asked = null, done = false, waited = false;
+    const render = () => {
+      btn.hidden = done || !asked;
+      manual.hidden = done || !!asked || !waited;
+      state.innerHTML = done ? '✅ Installed! Open <b>Immortal Chase</b> from your home screen.'
+        : !asked && waited ? 'Already installed? Open it from your home screen.' : '';
+    };
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('/immortal-chase/sw.js', { scope: '/immortal-chase/' }).catch(() => {});
-    const installed = () => { btn.hidden = true; manual.hidden = true; state.innerHTML = '✅ Installed! Open <b>Immortal Chase</b> from your home screen.'; };
     if (matchMedia('(display-mode: fullscreen), (display-mode: standalone)').matches) location.replace('play/');
-    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); asked = e; btn.hidden = false; manual.hidden = true; state.textContent = ''; });
-    window.addEventListener('appinstalled', installed);
+    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); asked = e; render(); });
+    window.addEventListener('appinstalled', () => { done = true; asked = null; render(); });
     btn.onclick = async () => {
-      if (!asked) return;
-      asked.prompt();
-      const r = await asked.userChoice;
-      asked = null;
-      if (r.outcome === 'accepted') installed(); else { btn.hidden = true; manual.hidden = false; }
+      const e = asked;
+      if (!e) return;
+      e.prompt();
+      const r = await e.userChoice;
+      if (r.outcome === 'accepted') done = true;
+      asked = null; waited = true;
+      render();
     };
     // no offer from the browser after a moment (already installed, or a browser without it): the way by hand
-    setTimeout(() => { if (!asked && btn.hidden && !state.textContent) { manual.hidden = false; state.textContent = 'Already installed? Open it from your home screen.'; } }, 2500);
+    setTimeout(() => { waited = true; render(); }, 2500);
+    render();
   </script>
 </body>
 </html>
