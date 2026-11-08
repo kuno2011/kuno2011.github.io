@@ -9,6 +9,12 @@
   <meta property="og:description" content="A chibi xianxia race: catch the Star-Jade Hare, flee the Giant Jade Spider.">
   <meta property="og:image" content="https://kuno2011.github.io/immortal-chase/img/yun.png">
   <link rel="stylesheet" href="/style.css">
+  <style>
+    [hidden] { display: none !important; }
+    /* the game over the page, played in the browser full screen (owner) */
+    #game { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; z-index: 100; background: #2b2140; }
+    body.playing { overflow: hidden; }
+  </style>
 </head>
 <body>
   <main class="card">
@@ -19,6 +25,7 @@
       <img src="img/yun.png" alt=""><img src="img/ling.png" alt=""><img src="img/fei.png" alt=""><img src="img/long.png" alt=""><img src="img/ye.png" alt=""><img src="img/tu.png" alt=""><img src="img/shi.png" alt="">
     </div>
     <button class="btn" id="install" hidden>📲 Install the game</button>
+    <button class="btn alt" id="play">▶ Play in the browser (full screen)</button>
     <p class="meta" id="state"></p>
     <div id="manual" hidden>
       <p><b>To install it:</b> open the browser's menu <b>⋮</b> and tap <b>Install app</b> (or <b>Add to Home screen</b>).
@@ -57,6 +64,25 @@
       if (r.outcome === 'accepted') done = true;
       asked = null; waited = true;
       render();
+    };
+    // play here without installing (owner): the tap that asks for full screen also opens the game, over this very page
+    // (a new page would lose full screen); without full screen (an iPhone's Safari), the game's own page instead
+    document.getElementById('play').onclick = async () => {
+      const el = document.documentElement;
+      try {
+        if (el.requestFullscreen) await el.requestFullscreen({ navigationUI: 'hide' });
+        else if (el.webkitRequestFullscreen) await el.webkitRequestFullscreen();
+        await screen.orientation?.lock?.('landscape');
+      } catch (e) { /* refused, or no lock: the game asks to turn the phone */ }
+      if (!(document.fullscreenElement || document.webkitFullscreenElement)) { location.href = 'play/'; return; }
+      let f = document.getElementById('game');
+      if (!f) {
+        f = document.createElement('iframe');
+        f.id = 'game'; f.src = 'play/'; f.allow = 'fullscreen; camera; autoplay; clipboard-write'; f.allowFullscreen = true;
+        document.body.appendChild(f);
+      }
+      document.body.classList.add('playing');
+      f.focus();
     };
     // no offer from the browser after a moment (already installed, or a browser without it): the way by hand
     setTimeout(() => { waited = true; render(); }, 2500);
