@@ -1,0 +1,12 @@
+# Cloudflare Pages (the official site, kuno-realm.pages.dev): security headers for every page. GitHub Pages ignores
+# this file. The game's own Content-Security-Policy is in its page (immortal-chase/play/index.html).
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Strict-Transport-Security: max-age=31536000
+  X-Frame-Options: SAMEORIGIN
+  Permissions-Policy: camera=(self), microphone=(), geolocation=(), payment=()
+
+# the game's built files carry a hash in their name: kept a year, a new build has new names
+/immortal-chase/play/assets/*
+  Cache-Control: public, max-age=31536000, immutable
