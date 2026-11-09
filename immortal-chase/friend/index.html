@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Add a friend · Immortal Chase</title>
+  <link rel="manifest" href="/immortal-chase/manifest.webmanifest">
+  <meta property="og:title" content="Be my friend in Immortal Chase!">
+  <meta property="og:description" content="Tap to add me as a friend.">
+  <meta property="og:image" content="https://kuno2011.github.io/immortal-chase/img/yun.png">
+  <link rel="stylesheet" href="/style.css">
+  <style>[hidden] { display: none !important; }</style>
+</head>
+<body>
+  <main class="card">
+    <img class="icon hero" src="../img/yun.png" alt="">
+    <h1>Add a friend</h1>
+    <p class="sub" id="lead">Someone wants to be your friend in Immortal Chase.</p>
+    <div class="code" id="code"></div>
+    <a class="btn" id="app" href="#" hidden>▶ Add in the app</a>
+    <p id="how"><b>Installed the game?</b> Open <b>Immortal Chase</b> from your home screen: it adds this friend by itself.</p>
+    <a class="btn" id="go" href="../play/">▶ Add in the browser</a>
+    <a class="btn alt" id="install" href="../">📲 Get the game</a>
+    <p class="meta">Or in the game: <b>👥 Friends</b>, type the code above and tap <b>Add</b>.</p>
+  </main>
+  <script>
+    // the friend code comes after the # (immortal-chase/friend/#ABCDEF); the game adds it from ?friend=
+    const code = (location.hash.slice(1) || new URLSearchParams(location.search).get('code') || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
+    const ok = /^[A-HJKMNP-Z2-9]{6}$/.test(code);
+    document.getElementById('code').textContent = ok ? code : '??????';
+    if (!ok) { document.getElementById('lead').textContent = 'This link has no friend code. Ask your friend to share it again.'; document.getElementById('how').hidden = true; }
+    if (ok) {
+      document.getElementById('go').href = `../play/?friend=${code}`;
+      // the installed web game shares this site's storage: it adds the friend the next time it opens
+      try { localStorage.setItem('immortal-chase:friend', JSON.stringify({ code, at: Date.now() })); } catch (e) {}
+    }
+    const android = /android/i.test(navigator.userAgent);
+    if (ok && android && navigator.getInstalledRelatedApps) navigator.getInstalledRelatedApps().then((apps) => {
+      if (!apps.length) return;
+      const play = `${location.host}${location.pathname.replace(/friend\/?$/, 'play/')}?friend=${code}`;
+      const app = document.getElementById('app');
+      app.href = `intent://${play}#Intent;scheme=https;action=android.intent.action.VIEW;end`;
+      app.hidden = false;
+      document.getElementById('how').hidden = true;
+      document.getElementById('install').hidden = true;
+      document.getElementById('go').classList.add('alt');
+    }).catch(() => {});
+    if (ok && matchMedia('(display-mode: fullscreen), (display-mode: standalone), (display-mode: minimal-ui)').matches) location.replace(`../play/?friend=${code}`);
+  </script>
+</body>
+</html>
