@@ -72,8 +72,10 @@
       try {
         if (el.requestFullscreen) await el.requestFullscreen({ navigationUI: 'hide' });
         else if (el.webkitRequestFullscreen) await el.webkitRequestFullscreen();
-        await screen.orientation?.lock?.('landscape');
-      } catch (e) { /* refused, or no lock: the game asks to turn the phone */ }
+      } catch (e) { /* refused: the game's own page below */ }
+      // turning the screen is not waited for (owner: on a phone the lock's promise could stay pending until a second
+      // tap, so the game only opened then); refused or unsupported, the game asks to turn the phone
+      try { screen.orientation?.lock?.('landscape')?.catch?.(() => {}); } catch (e) { /* none */ }
       if (!(document.fullscreenElement || document.webkitFullscreenElement)) { location.href = 'play/'; return; }
       let f = document.getElementById('game');
       if (!f) {
