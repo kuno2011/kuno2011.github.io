@@ -21,3 +21,4 @@ a { color: var(--jade-d); }
 .games a { display: flex; align-items: center; gap: 14px; text-align: left; text-decoration: none; color: var(--ink); background: #fff;
   border-radius: 16px; padding: 12px; border: 2px solid #e6dcc4; }
 .games img { width: 64px; height: 64px; border-radius: 14px; }
+.games { display: flex; flex-direction: column; gap: 10px; }

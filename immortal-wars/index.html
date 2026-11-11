@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Immortal Wars</title>
+  <link rel="manifest" href="/immortal-wars/manifest.webmanifest">
+  <meta name="theme-color" content="#1d2238">
+  <meta property="og:title" content="Immortal Wars">
+  <meta property="og:description" content="Turn-based war of xianxia sects on floating islands over the Sea of Clouds.">
+  <meta property="og:image" content="https://kuno2011.github.io/immortal-wars/img/icon.png">
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    [hidden] { display: none !important; }
+    /* the game over the page, played in the browser full screen (owner) */
+    #game { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; z-index: 100; background: #1d2238; }
+    body.playing { overflow: hidden; }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <img class="icon hero" src="img/icon.png" alt="" style="border-radius:24px">
+    <h1>Immortal Wars</h1>
+    <p class="sub">Sects of cultivators at war over the Sea of Clouds. Talismans, flying swords, and the Heaven-Binding Silk.</p>
+    <div class="cast">
+      <img src="img/yun.png" alt=""><img src="img/ling.png" alt=""><img src="img/fei.png" alt=""><img src="img/long.png" alt=""><img src="img/ye.png" alt=""><img src="img/tu.png" alt=""><img src="img/shi.png" alt="">
+    </div>
+    <button class="btn" id="install" hidden>📲 Install the game</button>
+    <button class="btn alt" id="play">▶ Play in the browser (full screen)</button>
+    <p class="meta" id="state"></p>
+    <div id="manual" hidden>
+      <p><b>To install it:</b> open the browser's menu <b>⋮</b> and tap <b>Install app</b> (or <b>Add to Home screen</b>).
+        On an iPhone: the <b>Share</b> button, then <b>Add to Home Screen</b>.</p>
+    </div>
+    <h2>What “install” means</h2>
+    <p>The game is added to your home screen with its own icon, like any app, without the Play Store. It opens full
+      screen, sideways or upright as you hold the phone, and starts even without internet.</p>
+    <p><b>It updates itself:</b> every time you open it online, it is the latest version. Nothing to download again.</p>
+    <p>Everything runs on your phone; the site only delivers the game. To remove it, long-press its icon and choose
+      <b>Uninstall</b>.</p>
+    <h2>How to play</h2>
+    <p><b>Sect War</b> against bot sects, or <b>Pass &amp; Play</b> with friends on one phone. Drag back from your disciple
+      to aim like a slingshot, mind the wind, and knock rivals into the clouds. The <b>Silk Trials</b> teach the
+      Heaven-Binding Silk: swing, let go, and kick every scarecrow off the islands.</p>
+  </main>
+  <script>
+    // the install (a Progressive Web App): the browser offers it once the page qualifies; our button asks for it.
+    // One state at a time: the button (the browser offers it), the way by hand (it does not), or installed.
+    const btn = document.getElementById('install'), state = document.getElementById('state'), manual = document.getElementById('manual');
+    let asked = null, done = false, waited = false;
+    const render = () => {
+      btn.hidden = done || !asked;
+      manual.hidden = done || !!asked || !waited;
+      state.innerHTML = done ? '✅ Installed! Open <b>Immortal Wars</b> from your home screen.'
+        : !asked && waited ? 'Already installed? Open it from your home screen.' : '';
+    };
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('/immortal-wars/sw.js', { scope: '/immortal-wars/' }).catch(() => {});
+    if (matchMedia('(display-mode: fullscreen), (display-mode: standalone)').matches) location.replace('play/');
+    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); asked = e; render(); });
+    window.addEventListener('appinstalled', () => { done = true; asked = null; render(); });
+    btn.onclick = async () => {
+      const e = asked;
+      if (!e) return;
+      e.prompt();
+      const r = await e.userChoice;
+      if (r.outcome === 'accepted') done = true;
+      asked = null; waited = true;
+      render();
+    };
+    // play here without installing (owner): the tap that asks for full screen also opens the game, over this very page
+    // (a new page would lose full screen); without full screen (an iPhone's Safari), the game's own page instead
+    document.getElementById('play').onclick = async () => {
+      const el = document.documentElement;
+      try {
+        if (el.requestFullscreen) await el.requestFullscreen({ navigationUI: 'hide' });
+        else if (el.webkitRequestFullscreen) await el.webkitRequestFullscreen();
+      } catch (e) { /* refused: the game's own page below */ }
+      // the screen is not turned: Immortal Wars plays sideways or upright, as the phone is held
+      if (!(document.fullscreenElement || document.webkitFullscreenElement)) { location.href = 'play/'; return; }
+      let f = document.getElementById('game');
+      if (!f) {
+        f = document.createElement('iframe');
+        f.id = 'game'; f.src = 'play/'; f.allow = 'fullscreen; autoplay'; f.allowFullscreen = true;
+        document.body.appendChild(f);
+      }
+      document.body.classList.add('playing');
+      f.focus();
+    };
+    // no offer from the browser after a moment (already installed, or a browser without it): the way by hand
+    setTimeout(() => { waited = true; render(); }, 2500);
+    render();
+  </script>
+</body>
+</html>

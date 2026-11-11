@@ -10,3 +10,5 @@
 # the game's built files carry a hash in their name: kept a year, a new build has new names
 /immortal-chase/play/assets/*
   Cache-Control: public, max-age=31536000, immutable
+/immortal-wars/play/assets/*
+  Cache-Control: public, max-age=31536000, immutable

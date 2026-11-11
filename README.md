@@ -7,6 +7,7 @@ Public pages for Kuno's games, served at https://kuno2011.github.io/.
 - `immortal-chase/join/#CODE`: a room invitation. It opens the game straight in the room (Android App Links:
   `.well-known/assetlinks.json` holds the Android build's signing key), else its button opens the game in the room
   (`play/?join=CODE`).
+- `immortal-wars/`: the same for Immortal Wars (its page installs it as an app; `play/` is the game).
 - `.nojekyll` keeps GitHub Pages from dropping `.well-known/`.
 
-The game's code is private (kuno2011/immortal-chase); only these pages and the built game are here.
+The games' code is private (kuno2011/immortal-chase, kuno2011/immortal-wars); only these pages and the built games are here.

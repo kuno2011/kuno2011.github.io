@@ -1,0 +1,17 @@
+{
+  "id": "/immortal-wars/",
+  "name": "Immortal Wars",
+  "short_name": "Immortal Wars",
+  "description": "Turn-based war of xianxia sects on floating islands over the Sea of Clouds. Swing on the Heaven-Binding Silk.",
+  "start_url": "/immortal-wars/play/",
+  "scope": "/immortal-wars/",
+  "display": "fullscreen",
+  "launch_handler": { "client_mode": "navigate-existing" },
+  "orientation": "any",
+  "background_color": "#1d2238",
+  "theme_color": "#1d2238",
+  "icons": [
+    { "src": "/immortal-wars/play/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/immortal-wars/play/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
