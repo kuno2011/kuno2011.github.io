@@ -6,6 +6,7 @@
   "start_url": "/immortal-chase/play/",
   "scope": "/immortal-chase/",
   "display": "fullscreen",
+  "handle_links": "preferred",
   "related_applications": [{ "platform": "webapp", "url": "https://kuno2011.github.io/immortal-chase/manifest.webmanifest" }],
   "launch_handler": { "client_mode": "navigate-existing" },
   "orientation": "landscape",
